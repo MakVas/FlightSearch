@@ -32,29 +32,27 @@ class MainViewModel(
     }
 
     fun updateSearchQuery(query: String) {
-        _uiState.update {
-            it.copy(
-                query = query
-            )
+        _uiState.update { it.copy(query = query) }
+        if (query.isBlank() || query.isEmpty()) {
+            updateCurrentScreen(Screen.FAVORITES)
+        } else {
+            getAirports(query)
+            updateCurrentScreen(Screen.AIRPORTS)
         }
     }
 
     fun getAirports(query: String) {
         viewModelScope.launch {
-                val airportsL = airportRepository.getAirport(query)
-                _uiState.update { it.copy(airports = airportsL.first()) }
-                //_uiState.update { it.copy(airports = emptyList()) }
+                val airports = airportRepository.getAirport(query)
+                _uiState.update { it.copy(airports = airports.first()) }
         }
     }
 
     fun getDestinations(query: String) {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    airports = airportRepository.getDestinations(query).first(),
-                    currentScreen = Screen.DESTINATIONS,
-                )
-            }
+            val airports = airportRepository.getDestinations(query)
+            _uiState.update { it.copy(airports = airports.first()) }
+            updateCurrentScreen(Screen.DESTINATIONS)
         }
     }
 

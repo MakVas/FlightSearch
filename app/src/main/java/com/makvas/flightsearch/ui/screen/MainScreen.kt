@@ -57,28 +57,24 @@ fun FlightSearchContent(
                 searchQuery = uiState.query,
                 onSearchQueryChange = {
                     viewModel.updateSearchQuery(it)
-                    if(it.isNotBlank()) {
-                        viewModel.updateCurrentScreen(Screen.AIRPORTS)
-                        viewModel.getAirports(it)
-                    }else{
-                        viewModel.updateCurrentScreen(Screen.FAVORITES)
-                    }
                 }
             )
         }
     ) {
-        when(uiState.currentScreen) {
+        when (uiState.currentScreen) {
             Screen.AIRPORTS -> SearchSuggestions(
                 modifier = Modifier
                     .padding(top = dimensionResource(R.dimen.padding_medium))
                     .fillMaxSize(),
-                contentPadding = it,
                 airports = uiState.airports,
+                onClick = {
+                    viewModel.getDestinations(it.iata)
+                },
+                contentPadding = it,
             )
 
             Screen.DESTINATIONS -> SearchResults(
                 modifier = Modifier
-                    .padding(top = dimensionResource(R.dimen.padding_medium))
                     .fillMaxSize(),
                 contentPadding = it
             )
@@ -136,9 +132,7 @@ private fun SearchSuggestions(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        //TODO: Handle click
-                    }
+                    .clickable { onClick(airports[it]) }
                     .padding(vertical = dimensionResource(R.dimen.padding_small))
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
                 text = buildAnnotatedString {
