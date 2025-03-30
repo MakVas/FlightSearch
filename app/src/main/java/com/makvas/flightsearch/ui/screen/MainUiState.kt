@@ -1,7 +1,6 @@
 package com.makvas.flightsearch.ui.screen
 
 import com.makvas.flightsearch.data.Airport
-import com.makvas.flightsearch.data.Favorite
 
 enum class Screen {
     AIRPORTS,
@@ -9,12 +8,16 @@ enum class Screen {
     FAVORITES
 }
 
-
+data class FlightItem(
+    val departure: Airport,
+    val destination: Airport
+)
 
 data class MainUiState(
     val currentScreen: Screen = Screen.FAVORITES,
     val query: String = "",
+    val currentAirport: Airport = Airport(0, "", "", 0),
     val airports: List<Airport> = emptyList(),
-    val destinations: List<Airport> = emptyList(),
-    val favorites: List<Favorite> = emptyList()
+    val flights: List<FlightItem> = emptyList(),
+    val favorites: List<FlightItem> = emptyList()
 )

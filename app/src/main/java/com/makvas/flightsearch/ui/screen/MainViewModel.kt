@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.makvas.flightsearch.FlightSearchApplication
+import com.makvas.flightsearch.data.Airport
 import com.makvas.flightsearch.data.AirportRepository
 import com.makvas.flightsearch.data.FavoriteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,11 @@ class MainViewModel(
     private val airportRepository: AirportRepository,
     private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
-    fun updateCurrentScreen(screen: Screen) {
+    private fun updateCurrentScreen(screen: Screen) {
         _uiState.update {
             it.copy(
                 currentScreen = screen
@@ -31,8 +33,16 @@ class MainViewModel(
         }
     }
 
+    fun updateCurrentAirport(airport: Airport) {
+        _uiState.update {
+            it.copy(
+                currentAirport = airport
+            )
+        }
+    }
+
     fun updateSearchQuery(query: String) {
-        _uiState.update { it.copy(query = query) }
+        _uiState.update { it.copy(query = query.trim()) }
         if (query.isBlank() || query.isEmpty()) {
             updateCurrentScreen(Screen.FAVORITES)
         } else {
@@ -43,15 +53,19 @@ class MainViewModel(
 
     fun getAirports(query: String) {
         viewModelScope.launch {
-                val airports = airportRepository.getAirport(query)
-                _uiState.update { it.copy(airports = airports.first()) }
+            val airports = airportRepository.getAirport(query.trim())
+            _uiState.update { it.copy(airports = airports.first()) }
         }
     }
 
     fun getDestinations(query: String) {
         viewModelScope.launch {
-            val airports = airportRepository.getDestinations(query)
-            _uiState.update { it.copy(airports = airports.first()) }
+            val destinations = airportRepository.getDestinations(query.trim())
+            _uiState.update {
+                it.copy(flights = destinations.first().map {
+                    FlightItem(departure = uiState.value.currentAirport, destination = it)
+                })
+            }
             updateCurrentScreen(Screen.DESTINATIONS)
         }
     }

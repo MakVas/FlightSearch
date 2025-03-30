@@ -19,7 +19,7 @@ interface AirportDao {
 
     @Query(
         "SELECT * FROM airport " +
-        "WHERE name NOT LIKE '%' || :query || '%' OR iata_code NOT LIKE '%' || :query || '%' " +
+        "WHERE id != :query " +
         "ORDER BY passengers ASC"
     )
     fun getDestinations(query: String): Flow<List<Airport>>
