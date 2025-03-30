@@ -62,26 +62,30 @@ fun FlightSearchContent(
         }
     ) {
         when (uiState.currentScreen) {
-            Screen.AIRPORTS -> SearchSuggestions(
+            Screen.AIRPORTS -> SearchAirport(
                 modifier = Modifier
                     .padding(top = dimensionResource(R.dimen.padding_medium))
                     .fillMaxSize(),
                 airports = uiState.airports,
                 onClick = {
-                    viewModel.getDestinations(it.iata)
+                    viewModel.updateCurrentAirport(it)
+                    viewModel.getDestinations(it.id.toString())
                 },
                 contentPadding = it,
             )
 
-            Screen.DESTINATIONS -> SearchResults(
+            Screen.DESTINATIONS -> SearchDestination(
                 modifier = Modifier
                     .fillMaxSize(),
+                currentAirport = uiState.currentAirport,
+                flights = uiState.flights,
                 contentPadding = it
             )
 
-            Screen.FAVORITES -> SearchResults(
+            Screen.FAVORITES -> DisplayFavorites(
                 modifier = Modifier
                     .fillMaxSize(),
+                favorites = uiState.favorites,
                 contentPadding = it
             )
         }
@@ -89,8 +93,41 @@ fun FlightSearchContent(
 }
 
 @Composable
-private fun SearchResults(
+private fun SearchDestination(
     modifier: Modifier = Modifier,
+    currentAirport: Airport,
+    flights: List<FlightItem>,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    LazyColumn(
+        modifier = modifier
+            .padding(contentPadding)
+            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            .fillMaxSize(),
+    ) {
+        item {
+            Text(
+                text = "Flights from ${currentAirport.iata}",
+                modifier = Modifier
+                    .padding(vertical = dimensionResource(R.dimen.padding_small))
+            )
+        }
+        items(flights.size) {
+            RouteItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = dimensionResource(R.dimen.padding_small)),
+                departure = flights[it].departure,
+                destination = flights[it].destination,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DisplayFavorites(
+    modifier: Modifier = Modifier,
+    favorites: List<FlightItem>,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     LazyColumn(
@@ -106,18 +143,14 @@ private fun SearchResults(
                     .padding(vertical = dimensionResource(R.dimen.padding_small))
             )
         }
-        items(5) {
-            RouteItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = dimensionResource(R.dimen.padding_small))
-            )
+        items(favorites.size) {
+            Text(text = "favorite $it")
         }
     }
 }
 
 @Composable
-private fun SearchSuggestions(
+private fun SearchAirport(
     modifier: Modifier,
     airports: List<Airport>,
     onClick: (Airport) -> Unit = {},
@@ -179,14 +212,17 @@ private fun SearchBar(
 @Preview(showBackground = true)
 @Composable
 private fun FlightSearchContentPreview() {
+    val flights = listOf(
+        FlightItem(
+            departure = Airport(0,"LAX", "Los Angeles",1),
+            destination = Airport(1,"JFK", "New York",1)
+        )
+    )
+    val airport = Airport(0,"LAX", "Los Angeles",1)
     MaterialTheme {
-        SearchResults(
-            contentPadding = PaddingValues(
-                top = 0.dp,
-                bottom = 0.dp,
-                start = 0.dp,
-                end = 0.dp
-            )
+        SearchDestination(
+            currentAirport = airport,
+            flights = flights
         )
     }
 }

@@ -26,9 +26,15 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.makvas.flightsearch.R
+import com.makvas.flightsearch.data.Airport
 
 @Composable
-fun RouteItem(modifier: Modifier = Modifier) {
+fun RouteItem(
+    modifier: Modifier = Modifier,
+    departure: Airport,
+    destination: Airport,
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(
@@ -45,30 +51,38 @@ fun RouteItem(modifier: Modifier = Modifier) {
                     .padding(dimensionResource(R.dimen.padding_medium))
             ) {
                 Text(text = "DEPART")
-                Text(text = buildAnnotatedString {
-                    append("DEP")
-                    append("  ")
-                    addStyle(
-                        style = SpanStyle(fontWeight = FontWeight.Bold),
-                        start = 0,
-                        end = 3
-                    )
-                    append("Example first airport")
-                })
+                Text(
+                    text = buildAnnotatedString {
+                        append(departure.iata)
+                        append("  ")
+                        addStyle(
+                            style = SpanStyle(fontWeight = FontWeight.Bold),
+                            start = 0,
+                            end = 3
+                        )
+                        append(departure.name)
+                    },
+                    maxLines = 1
+                )
                 Text(text = "ARRIVE")
-                Text(text = buildAnnotatedString {
-                    append("ARR")
-                    append("  ")
-                    addStyle(
-                        style = SpanStyle(fontWeight = FontWeight.Bold),
-                        start = 0,
-                        end = 3
-                    )
-                    append("Example second airport")
-                })
+                Text(
+                    text = buildAnnotatedString {
+                        append(destination.iata)
+                        append("  ")
+                        addStyle(
+                            style = SpanStyle(fontWeight = FontWeight.Bold),
+                            start = 0,
+                            end = 3
+                        )
+                        append(destination.name)
+                    },
+                    maxLines = 1
+                )
             }
             IconButton(
-                onClick = {}
+                onClick = {
+                    onClick()
+                }
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Star,
@@ -112,7 +126,10 @@ fun CustomTextField(
 @Composable
 fun RouteItemPreview() {
     MaterialTheme {
-        RouteItem()
+        RouteItem(
+            departure = Airport(0, "LAX", "Los Angeles International Airport", 1),
+            destination = Airport(1, "JFK", "John F. Kennedy International Airport", 1),
+        )
     }
 }
 
